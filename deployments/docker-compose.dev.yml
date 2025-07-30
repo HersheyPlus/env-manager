@@ -1,9 +1,10 @@
+name: env-manager-development
 version: '3.8'
 
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: envmanager-postgres
+    container_name: env-manager-postgres-dev
     environment:
       POSTGRES_DB: envmanager_dev
       POSTGRES_USER: envmanager
@@ -21,7 +22,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: envmanager-redis
+    container_name: env-manager-redis-dev
     ports:
       - "6379:6379"
     volumes:
@@ -34,9 +35,9 @@ services:
 
   app:
     build:
-      context: .
+      context: ..
       dockerfile: deployments/Dockerfile.dev
-    container_name: envmanager-app
+    container_name: env-manager-app-dev
     environment:
       - ENV=development
       - CONFIG_PATH=./configs/config.dev.yaml

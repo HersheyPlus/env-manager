@@ -25,9 +25,14 @@ help: ## Show this help message
 
 # Development
 .PHONY: dev
-dev: ## Start development environment with hot reload
+dev: ## Start development environment with hot reload & logging
 	@echo "$(BLUE)Starting development environment...$(NC)"
 	docker compose -f deployments/docker-compose.dev.yml up --build
+
+.PHONY: dev-nlog
+dev-nlog: ## Start development environment with hot reload & no logging
+	@echo "$(BLUE)Starting development environment...$(NC)"
+	docker compose -f deployments/docker-compose.dev.yml up --build -d
 
 .PHONY: dev-down
 dev-down: ## Stop development environment

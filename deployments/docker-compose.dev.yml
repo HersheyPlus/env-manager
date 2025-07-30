@@ -37,15 +37,16 @@ services:
     build:
       context: ..
       dockerfile: deployments/Dockerfile.dev
-    container_name: env-manager-app-dev
+    container_name: env-manager-development
     environment:
       - ENV=development
       - CONFIG_PATH=./configs/config.dev.yaml
     ports:
       - "8080:8080"
     volumes:
-      - .:/app
+      - ..:/app
       - /app/bin
+      - /app/tmp
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,3 +63,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  app_tmp:

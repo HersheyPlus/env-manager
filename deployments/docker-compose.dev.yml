@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: envmanager-postgres
+    environment:
+      POSTGRES_DB: envmanager_dev
+      POSTGRES_USER: envmanager
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U envmanager -d envmanager_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: envmanager-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: deployments/Dockerfile.dev
+    container_name: envmanager-app
+    environment:
+      - ENV=development
+      - CONFIG_PATH=./configs/config.dev.yaml
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - /app/bin
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+          ignore:
+            - bin/
+            - logs/
+
+volumes:
+  postgres_data:
+  redis_data:

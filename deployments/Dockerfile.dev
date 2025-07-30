@@ -1,0 +1,27 @@
+FROM golang:1.24-alpine AS base
+
+# Install dependencies
+RUN apk add --no-cache git ca-certificates tzdata make
+
+# Install air for hot reload
+RUN go install github.com/air-verse/air@latest
+
+# Install migrate
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Ensure bin directory exists
+RUN mkdir -p bin
+
+EXPOSE 8080
+
+# Default command for development with hot reload
+CMD ["air", "-c", ".air.toml"]

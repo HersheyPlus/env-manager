@@ -127,6 +127,25 @@ tools: ## Install development tools
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	go install golang.org/x/tools/cmd/goimports@latest
 
+# Security Keys
+.PHONY: generate-keys
+generate-keys: ## Generate new encryption and JWT keys
+	@echo "$(BLUE)Generating security keys...$(NC)"
+	@echo "$(YELLOW)ENCRYPTION_KEY (32 bytes):$(NC)"
+	@openssl rand -hex 16
+	@echo "$(YELLOW)JWT_SECRET (64 chars):$(NC)"
+	@openssl rand -base64 64 | tr -d '\n' && echo
+
+.PHONY: generate-encryption-key
+generate-encryption-key: ## Generate new encryption key (32 bytes)
+	@echo "$(BLUE)Generated ENCRYPTION_KEY:$(NC)"
+	@openssl rand -hex 16
+
+.PHONY: generate-jwt-secret
+generate-jwt-secret: ## Generate new JWT secret (64 chars)
+	@echo "$(BLUE)Generated JWT_SECRET:$(NC)"
+	@openssl rand -base64 64 | tr -d '\n' && echo
+
 # SQLC
 .PHONY: sqlc-generate
 sqlc-generate: ## Generate SQLC code

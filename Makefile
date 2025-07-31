@@ -34,6 +34,11 @@ dev-nlog: ## Start development environment with hot reload & no logging
 	@echo "$(BLUE)Starting development environment...$(NC)"
 	docker compose -f deployments/docker-compose.dev.yml up --build -d
 
+.PHONY: dev-only-db
+dev-only-db: ## Start development environment with only database
+	@echo "$(BLUE)Starting development environment only database...$(NC)"
+	docker compose -f ./deployments/docker-compose.dev.yml up --build -d postgres
+
 .PHONY: dev-down
 dev-down: ## Stop development environment
 	@echo "$(YELLOW)Stopping development environment...$(NC)"
@@ -52,9 +57,14 @@ db-migrate-up: ## Run database migrations up
 	migrate -path migrations -database $(POSTGRES_URL) up
 
 .PHONY: db-migrate-down
-db-migrate-down: ## Run database migrations down
+db-migrate-down: ## Run database migrations down (default 1, pass step=all to rollback all)
 	@echo "$(YELLOW)Running database migrations down...$(NC)"
-	migrate -path migrations -database $(POSTGRES_URL) down 1
+	@if [ "$(step)" = "all" ]; then \
+		migrate -path migrations -database $(POSTGRES_URL) down; \
+	else \
+		migrate -path migrations -database $(POSTGRES_URL) down 1; \
+	fi
+
 
 .PHONY: db-migrate-create
 db-migrate-create: ## Create new migration file (usage: make db-migrate-create NAME=create_users)
